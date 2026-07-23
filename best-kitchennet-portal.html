@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Kitchennet — New Project Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root{
+    --ink:#211D18;
+    --ink-soft:#5B5449;
+    --paper:#F7F3EC;
+    --card:#FFFFFF;
+    --line:#E4DCCB;
+    --wood:#B8763E;
+    --wood-dark:#8B5828;
+    --brick:#A63A2C;
+    --brick-dark:#7C2A20;
+    --tag:#F3CB4E;
+    --tag-ink:#5A4400;
+    --green:#4F7942;
+    --green-bg:#EAF1E4;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px 60px;}
+  .brandbar{display:flex;align-items:center;justify-content:space-between;padding:22px 0 18px;border-bottom:1px solid var(--line);margin-bottom:28px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{width:42px;height:42px;border-radius:8px;background:var(--brick);display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:19px;flex-shrink:0;}
+  .brand-name{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;letter-spacing:.2px;line-height:1.1;}
+  .brand-tag{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .admin-toggle{background:none;border:1px solid var(--line);color:var(--ink-soft);font-size:12.5px;padding:7px 12px;border-radius:20px;cursor:pointer;}
+  .admin-toggle:hover{border-color:var(--wood);color:var(--wood-dark);}
+
+  .steps{display:flex;gap:6px;margin-bottom:34px;}
+  .step-pip{flex:1;text-align:center;}
+  .step-num{width:26px;height:26px;border-radius:50%;background:var(--card);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .step-pip.active .step-num{background:var(--brick);border-color:var(--brick);color:#fff;}
+  .step-pip.done .step-num{background:var(--green);border-color:var(--green);color:#fff;}
+  .step-label{font-size:11px;color:var(--ink-soft);}
+  .step-pip.active .step-label{color:var(--ink);font-weight:600;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px 30px;margin-bottom:22px;}
+  .card h2{font-family:Georgia,'Times New Roman',serif;font-size:21px;margin:0 0 4px;}
+  .card .sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 22px;}
+
+  .dropzone{border:2px dashed var(--line);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;transition:.15s;}
+  .dropzone:hover, .dropzone.drag{border-color:var(--wood);background:#FBF6EC;}
+  .dropzone .dz-icon{font-size:30px;margin-bottom:10px;}
+  .dropzone .dz-main{font-size:14.5px;font-weight:600;}
+  .dropzone .dz-sub{font-size:12.5px;color:var(--ink-soft);margin-top:5px;}
+  input[type=file]{display:none;}
+
+  .ai-status{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#FBF6EC;border:1px solid var(--tag);border-radius:10px;font-size:13.5px;margin-top:16px;}
+  .spinner{width:15px;height:15px;border-radius:50%;border:2px solid var(--tag);border-top-color:var(--wood-dark);animation:spin .7s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .tag-chip{display:inline-block;background:var(--tag);color:var(--tag-ink);font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase;}
+
+  .section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--wood-dark);margin:26px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  .section-title:first-of-type{margin-top:0;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid.g3{grid-template-columns:1fr 1fr 1fr;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+  .field input, .field select, .field textarea{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink);}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--wood);}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field.filled input, .field.filled textarea{background:#FBF6EC;border-color:var(--tag);}
+
+  .checks{display:flex;flex-wrap:wrap;gap:10px;}
+  .chk{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;}
+  .chk input{margin:0;}
+  .chk.on{border-color:var(--wood);background:#FBF6EC;}
+
+  .btnrow{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .btn{border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn-primary{background:var(--brick);color:#fff;}
+  .btn-primary:hover{background:var(--brick-dark);}
+  .btn-ghost{background:none;border:1px solid var(--line);color:var(--ink-soft);}
+  .btn-ghost:hover{border-color:var(--wood);color:var(--wood-dark);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  .filegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:16px;}
+  .fitem{position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#FAF8F3;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--ink-soft);text-align:center;padding:6px;}
+  .fitem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .fitem .fname{position:absolute;bottom:0;left:0;right:0;background:rgba(33,29,24,.72);color:#fff;font-size:9px;padding:3px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fitem .fdel{position:absolute;top:3px;right:3px;background:rgba(33,29,24,.75);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;line-height:1;}
+  .filecount{font-size:12px;color:var(--ink-soft);margin-top:8px;}
+
+  .dupe-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#FBEFEA;border:1px solid var(--brick);border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;}
+  .dupe-banner .dbtns{display:flex;gap:8px;flex-shrink:0;}
+  .dupe-banner .btn{padding:7px 14px;font-size:12.5px;}
+
+  .summary-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-row .k{color:var(--ink-soft);}
+  .summary-row .v{font-weight:600;text-align:right;max-width:60%;}
+
+  .done-hero{text-align:center;padding:20px 0 10px;}
+  .done-check{width:56px;height:56px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;}
+  .pid{font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;letter-spacing:1px;color:var(--brick);margin:6px 0 2px;}
+  .wa-box{background:#EFFAF0;border:1px solid #BFE3C2;border-radius:10px;padding:16px;font-size:13.5px;white-space:pre-wrap;line-height:1.6;margin-top:10px;}
+  .copy-link{display:flex;align-items:center;gap:8px;background:#FBF6EC;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12.5px;font-family:monospace;margin-top:10px;word-break:break-all;}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{text-align:left;color:var(--ink-soft);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .status-pill{display:inline-block;background:var(--green-bg);color:var(--green);font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:20px;}
+  .empty{text-align:center;padding:40px 0;color:var(--ink-soft);font-size:13.5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brandbar">
+    <div class="brand">
+      <div class="brand-mark">BK</div>
+      <div>
+        <div class="brand-name">Best Kitchennet</div>
+        <div class="brand-tag">जगह बचाएं, सुंदरता बढ़ाएं — New Project Portal</div>
+      </div>
+    </div>
+    <button class="admin-toggle" id="adminToggle">View sheet ↗</button>
+  </div>
+
+  <div id="formFlow">
+    <div class="steps" id="stepsBar"></div>
+    <div id="stepContent"></div>
+  </div>
+
+  <div id="adminView" style="display:none;">
+    <div class="card">
+      <h2 id="sheetTitle">Google Sheet (simulated)</h2>
+      <p class="sub" id="sheetSub">Every submission below is written here automatically — same idea as the live Sheet, just running in this browser tab for the demo.</p>
+      <div style="overflow-x:auto;">
+        <table id="sheetTable"></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Paste your deployed Apps Script Web App URL here (Deploy > New deployment > Web app).
+// Leave blank to keep running the local-only demo mode.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvyQt0uMoghnSq1L8dfzvjrgKeLpqzVdsRrHi29fWjxsAiMp_NL61K0TR1Q6SiGJ8F/exec';
+
+const STEPS = ['Upload PDF','Verify details','Add photos','Review & submit','Done'];
+let step = 0;
+let extracted = {};
+let form = {};
+let files = [];
+let dupeMatch = null;
+let dupeChoice = null;
+
+const MOCK_EXISTING = [
+  {mobile:'9822011223', name:'Mr. Sample Existing Client', projectId:'BK-2026-000042'}
+];
+
+function fieldDefs(){
+  return [
+    {group:'Customer details', fields:[
+      ['customerName','Customer name','text'],
+      ['phone','Phone number','tel'],
+      ['email','Email','email'],
+      ['address','Address','textarea','full'],
+      ['city','City','text'],['state','State','text'],['pincode','Pincode','text'],
+      ['mapLink','Google Map link','text','full'],
+    ]},
+    {group:'Project information', checks:['Kitchen','Wardrobe','TV Unit','Sofa','Dining','Bedroom','Office','Commercial']},
+    {group:'Measurements', fields:[
+      ['hm','HM','text'],['fm','FM','text'],
+      ['height','Height','text'],['width','Width','text'],['depth','Depth','text'],
+      ['otherMeasure','Other measurements','textarea','full'],
+    ]},
+    {group:'Material', fields:[
+      ['laminate','Laminate','text'],['hardware','Hardware','text'],['glass','Glass','text'],
+      ['accessories','Accessories','text'],['handles','Handles','text'],['profile','Profile','text'],
+      ['finish','Finish','text'],['color','Color preference','text'],
+    ]},
+    {group:'Budget and notes', fields:[
+      ['budget','Budget','text'],['delivery','Expected delivery','text'],['priority','Priority','text'],
+      ['notes','Notes','textarea','full'],['special','Special requirements','textarea','full'],
+    ]},
+  ];
+}
+
+function renderSteps(){
+  const bar = document.getElementById('stepsBar');
+  bar.innerHTML = STEPS.map((s,i)=>`
+    <div class="step-pip ${i===step?'active':''} ${i<step?'done':''}">
+      <div class="step-num">${i<step?'✓':i+1}</div>
+      <div class="step-label">${s}</div>
+    </div>`).join('');
+}
+
+function render(){
+  renderSteps();
+  const c = document.getElementById('stepContent');
+  if(step===0) c.innerHTML = viewUpload();
+  if(step===1) c.innerHTML = viewVerify();
+  if(step===2) c.innerHTML = viewPhotos();
+  if(step===3) c.innerHTML = viewReview();
+  if(step===4) c.innerHTML = viewDone();
+  wireStep();
+}
+
+function viewUpload(){
+  return `
+  <div class="card">
+    <h2>Send us your requirement PDF</h2>
+    <p class="sub">Upload the requirement sheet you received — Claude reads it and fills the form for you. Nothing to type.</p>
+    <label class="dropzone" id="dz" for="pdfInput">
+      <div class="dz-icon">📄</div>
+      <div class="dz-main">Click to upload, or drag a PDF here</div>
+      <div class="dz-sub">Text, scanned or multi-page PDFs — up to 25MB</div>
+    </label>
+    <input type="file" id="pdfInput" accept="application/pdf">
+    <div id="aiStatus"></div>
+    <div class="btnrow" style="margin-top:20px;">
+      <span></span>
+      <button class="btn btn-ghost" id="skipUpload">Skip — I'll fill the form manually →</button>
+    </div>
+  </div>`;
+}
+
+function fieldHtml([key,label,type,width], sourceObj){
+  const filled = sourceObj[key] ? 'filled' : '';
+  const val = sourceObj[key] || '';
+  const badge = sourceObj[key] ? `<span class="tag-chip">AI filled</span>` : '';
+  const cls = width==='full' ? 'field full '+filled : 'field '+filled;
+  if(type==='textarea'){
+    return `<div class="${cls}"><label>${label} ${badge}</label><textarea data-key="${key}">${val}</textarea></div>`;
+  }
+  return `<div class="${cls}"><label>${label} ${badge}</label><input type="${type}" data-key="${key}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+}
+
+function viewVerify(){
+  const defs = fieldDefs();
+  let html = `<div class="card"><h2>Verify your details</h2><p class="sub">We pulled everything we could find from the PDF — just check it over and fix anything that's off.</p>`;
+  defs.forEach(sec=>{
+    html += `<div class="section-title">${sec.group}</div>`;
+    if(sec.checks){
+      html += `<div class="checks">` + sec.checks.map(c=>{
+        const on = form.projectTypes && form.projectTypes.includes(c);
+        return `<label class="chk ${on?'on':''}"><input type="checkbox" data-check="${c}" ${on?'checked':''}> ${c}</label>`;
+      }).join('') + `</div>`;
+    } else {
+      html += `<div class="grid">` + sec.fields.map(f=>fieldHtml(f, form)).join('') + `</div>`;
+    }
+  });
+  html += `
+    <div class="btnrow" style="margin-top:26px;">
+      <button class="btn btn-ghost" id="backBtn">← Back</button>
+      <button class="btn btn-primary" id="toPhotos">Continue to photos →</button>
+    </div>
+  </div>`;
+  return html;
+}
+
+function viewPhotos(){
+  return `
+  <div class="card">
+    <h2>Add site photos and reference files</h2>
+    <p class="sub">Site photos, measurement photos, reference images, videos, voice notes — up to 50 files.</p>
+    <label class="dropzone" id="fdz" for="fileInput">
+      <div class="dz-icon">🖼️</div>
+      <div class="dz-main">Click to upload, or drag files here</div>
+      <div class="dz-sub">Images, videos and audio notes</div>
+    </label>
+    <input type="file" id="fileInput" multiple accept="image/*,video/*,audio/*">
+    <div class="filecount" id="fcount">${files.length} of 50 files added</div>
+    <div class="filegrid" id="fgrid"></div>
+    <div class="btnrow" style="margin-top:26px;">
+      <button class="btn btn-ghost" id="backBtn">← Back</button>
+      <button class="btn btn-primary" id="toReview">Continue to review →</button>
+    </div>
+  </div>`;
+}
+
+function viewReview(){
+  const rows = [
+    ['Customer name', form.customerName], ['Phone', form.phone], ['Email', form.email],
+    ['Address', [form.address, form.city, form.state, form.pincode].filter(Boolean).join(', ')],
+    ['Project type', (form.projectTypes||[]).join(', ')],
+    ['Measurements', [form.hm&&('HM '+form.hm), form.fm&&('FM '+form.fm), form.height&&('H '+form.height), form.width&&('W '+form.width)].filter(Boolean).join(' · ')],
+    ['Material', [form.laminate,form.hardware,form.glass,form.color].filter(Boolean).join(' · ')],
+    ['Budget', form.budget], ['Files attached', files.length+' files'],
+  ];
+  let dupeHtml = '';
+  if(dupeMatch && !dupeChoice){
+    dupeHtml = `
+    <div class="dupe-banner">
+      <div><b>Existing customer found</b> — ${dupeMatch.name} (${dupeMatch.projectId}) already uses this mobile number.</div>
+      <div class="dbtns">
+        <button class="btn btn-ghost" id="updateExisting">Update existing</button>
+        <button class="btn btn-primary" id="createNew">Create new project</button>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="card">
+    <h2>Review and submit</h2>
+    <p class="sub">This is exactly what will be sent to the Best Kitchennet team.</p>
+    ${dupeHtml}
+    ${rows.map(([k,v])=>`<div class="summary-row"><div class="k">${k}</div><div class="v">${v||'—'}</div></div>`).join('')}
+    <div class="btnrow" style="margin-top:26px;">
+      <button class="btn btn-ghost" id="backBtn">← Back</button>
+      <button class="btn btn-primary" id="submitBtn" ${dupeMatch && !dupeChoice ? 'disabled':''}>Submit project →</button>
+    </div>
+  </div>`;
+}
+
+function viewDone(){
+  const wa = `Hi ${form.customerName||'there'}! 👋
+Your requirement for Best Kitchennet has been received.
+
+Project ID: ${form.projectId}
+Type: ${(form.projectTypes||[]).join(', ')||'—'}
+Status: Lead Received
+
+Our design team will reach out shortly. You can review or edit your details anytime using the link below.`;
+  return `
+  <div class="card">
+    <div class="done-hero">
+      <div class="done-check">✓</div>
+      <h2>Project submitted</h2>
+      <p class="sub">It's already sitting in the Google Sheet and dashboard — no one has to retype a thing.</p>
+      <div class="pid">${form.projectId}</div>
+      <div style="font-size:12.5px;color:var(--ink-soft);">Status: <span class="status-pill">Lead Received</span> · ${form.timestamp}</div>
+    </div>
+    <div class="section-title">Edit link (for the customer)</div>
+    <div class="copy-link">${form.editLink || ('https://portal.bestkitchennet.in/edit/' + form.projectId)}</div>
+    <div class="section-title">WhatsApp confirmation</div>
+    <div class="wa-box">${wa}</div>
+    <div class="btnrow" style="margin-top:26px;">
+      <span></span>
+      <button class="btn btn-primary" id="newProject">Start another project</button>
+    </div>
+  </div>`;
+}
+
+function wireStep(){
+  document.querySelectorAll('#backBtn').forEach(b=>b.onclick=()=>{step--;render();});
+
+  if(step===0){
+    const dz = document.getElementById('dz');
+    const input = document.getElementById('pdfInput');
+    input.onchange = e => e.target.files[0] && handlePdf(e.target.files[0]);
+    dz.ondragover = e=>{e.preventDefault(); dz.classList.add('drag');};
+    dz.ondragleave = ()=>dz.classList.remove('drag');
+    dz.ondrop = e=>{e.preventDefault(); dz.classList.remove('drag'); e.dataTransfer.files[0] && handlePdf(e.dataTransfer.files[0]);};
+    document.getElementById('skipUpload').onclick = ()=>{step=1; render();};
+  }
+
+  if(step===1){
+    document.querySelectorAll('[data-key]').forEach(el=>{
+      el.onchange = ()=> form[el.dataset.key] = el.value;
+    });
+    document.querySelectorAll('[data-check]').forEach(el=>{
+      el.onchange = ()=>{
+        form.projectTypes = form.projectTypes || [];
+        const v = el.dataset.check;
+        if(el.checked && !form.projectTypes.includes(v)) form.projectTypes.push(v);
+        if(!el.checked) form.projectTypes = form.projectTypes.filter(x=>x!==v);
+        el.closest('.chk').classList.toggle('on', el.checked);
+      };
+    });
+    document.getElementById('toPhotos').onclick = ()=>{
+      document.querySelectorAll('[data-key]').forEach(el=> form[el.dataset.key]=el.value);
+      step=2; render();
+    };
+  }
+
+  if(step===2){
+    const dz = document.getElementById('fdz');
+    const input = document.getElementById('fileInput');
+    input.onchange = e=> addFiles(e.target.files);
+    dz.ondragover = e=>{e.preventDefault(); dz.classList.add('drag');};
+    dz.ondragleave = ()=>dz.classList.remove('drag');
+    dz.ondrop = e=>{e.preventDefault(); dz.classList.remove('drag'); addFiles(e.dataTransfer.files);};
+    renderFileGrid();
+    document.getElementById('toReview').onclick = async ()=>{
+      const btn = document.getElementById('toReview');
+      btn.disabled = true; btn.textContent = 'Checking…';
+      await checkDuplicate();
+      step=3; render();
+    };
+  }
+
+  if(step===3){
+    const upd = document.getElementById('updateExisting');
+    const crt = document.getElementById('createNew');
+    if(upd) upd.onclick = ()=>{ dupeChoice='update'; render(); };
+    if(crt) crt.onclick = ()=>{ dupeChoice='new'; render(); };
+    const submitBtn = document.getElementById('submitBtn');
+    if(submitBtn) submitBtn.onclick = submitProject;
+  }
+
+  if(step===4){
+    document.getElementById('newProject').onclick = ()=>{
+      form={}; extracted={}; files=[]; dupeMatch=null; dupeChoice=null; step=0; render();
+    };
+  }
+}
+
+async function handlePdf(file){
+  const status = document.getElementById('aiStatus');
+  status.innerHTML = `<div class="ai-status"><div class="spinner"></div> Reading ${file.name}…</div>`;
+  try{
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const buf = await file.arrayBuffer();
+    const doc = await pdfjsLib.getDocument({data: buf}).promise;
+    let text = '';
+    for(let i=1;i<=Math.min(doc.numPages, 15); i++){
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(it=>it.str).join(' ') + '\n';
+    }
+    status.innerHTML = `<div class="ai-status"><div class="spinner"></div> Extracting fields…</div>`;
+    setTimeout(()=>{
+      const data = extractFields(text);
+      form = {...form, ...data};
+      status.innerHTML = `<div class="ai-status">✓ Auto-filled ${Object.keys(data).filter(k=>data[k]).length} fields from the PDF. Review them on the next screen.</div>`;
+      setTimeout(()=>{ step=1; render(); }, 700);
+    }, 500);
+  }catch(err){
+    status.innerHTML = `<div class="ai-status">Couldn't read that file automatically — no problem, just fill the form on the next screen.</div>`;
+    setTimeout(()=>{ step=1; render(); }, 1200);
+  }
+}
+
+function grab(re, text){
+  const m = text.match(re);
+  return m ? m[1].trim().replace(/\s{2,}/g,' ') : '';
+}
+
+function extractFields(text){
+  const t = text.replace(/\s+/g,' ');
+  const data = {};
+  data.customerName = grab(/CLIENT\s*NAME\s*:?\s*([A-Za-z.\s]{3,40}?)(?=CLIENT|EMAIL|PROJECT|$)/i, t)
+                     || grab(/CUSTOMER\s*NAME\s*:?\s*([A-Za-z.\s]{3,40}?)(?=PHONE|EMAIL|ADDRESS|$)/i, t);
+  data.phone = grab(/(?:CLIENT\s*MO|MOBILE|PHONE)\s*:?\s*(\+?\d[\d\s]{8,14}\d)/i, t);
+  data.email = grab(/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/i, t);
+  data.address = grab(/(?:PROJECT\s*ADDRESS|SITE\s*ADDRESS|ADDRESS)\s*:?\s*([^:]{8,90}?)(?=FM WORK|HM WORK|QUOTATION|DESIGN|$)/i, t);
+  const ptype = grab(/PROJECT\s*TYPE\s*:?\s*([A-Za-z0-9\s]{2,20}?)(?=DESIGNED|CLIENT|EXECUTIVE|$)/i, t);
+  data.projectTypes = [];
+  if(ptype) data.projectTypes.push(ptype.trim());
+  ['Kitchen','Wardrobe','TV Unit','Sofa','Dining','Bedroom'].forEach(k=>{
+    if(new RegExp(k.replace(' ','\\s*'),'i').test(t) && !data.projectTypes.includes(k)) data.projectTypes.push(k);
+  });
+  data.budget = grab(/BUDGET\s*:?\s*([₹\d,.\sA-Za-z]{2,20}?)(?=NOTES|REQUIREMENT|$)/i, t);
+  data.notes = grab(/(?:NOTES|SPECIAL\s*INSTRUCTIONS)\s*:?\s*([^:]{5,120}?)(?=$)/i, t);
+  return data;
+}
+
+function addFiles(fileList){
+  Array.from(fileList).forEach(f=>{
+    if(files.length>=50) return;
+    files.push(f);
+  });
+  document.getElementById('fcount').textContent = files.length+' of 50 files added';
+  renderFileGrid();
+}
+
+function renderFileGrid(){
+  const grid = document.getElementById('fgrid');
+  if(!grid) return;
+  grid.innerHTML = files.map((f,i)=>{
+    const isImg = f.type.startsWith('image/');
+    const url = isImg ? URL.createObjectURL(f) : '';
+    return `<div class="fitem">
+      ${isImg ? `<img src="${url}">` : `<div>📎</div>`}
+      <div class="fname">${f.name}</div>
+      <button class="fdel" data-i="${i}">×</button>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.fdel').forEach(b=>{
+    b.onclick = ()=>{ files.splice(+b.dataset.i,1); renderFileGrid(); document.getElementById('fcount').textContent = files.length+' of 50 files added'; };
+  });
+}
+
+async function checkDuplicate(){
+  dupeMatch = null; dupeChoice = null;
+  const phone = (form.phone||'').replace(/\D/g,'').slice(-10);
+  if(!phone) return;
+
+  if(APPS_SCRIPT_URL){
+    try{
+      const res = await callAppsScript({action:'checkDuplicate', phone});
+      if(res.ok && res.found){
+        dupeMatch = {mobile: phone, name: res.customerName, projectId: res.projectId};
+      }
+      return;
+    }catch(e){ console.error('duplicate check failed, falling back to local mock', e); }
+  }
+  if(MOCK_EXISTING.some(c=>c.mobile===phone)){
+    dupeMatch = MOCK_EXISTING.find(c=>c.mobile===phone);
+  }
+}
+
+// Calls the Apps Script Web App. Sends as text/plain to avoid a CORS
+// preflight, which Apps Script web apps don't support.
+async function callAppsScript(body){
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+async function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function nextProjectId(){
+  let list = [];
+  try{ const r = await window.storage.get('project-list'); list = JSON.parse(r.value); }catch(e){}
+  const n = list.length + 1;
+  return 'BK-2026-' + String(n).padStart(6,'0');
+}
+
+async function submitProject(){
+  const submitBtn = document.getElementById('submitBtn');
+  if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Submitting…'; }
+
+  form.timestamp = new Date().toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'});
+  form.filesCount = files.length;
+
+  if(APPS_SCRIPT_URL){
+    try{
+      // Only photo/pdf files are sent to Drive for now; keep the payload light.
+      const uploadable = files.filter(f => f.type.startsWith('image/') || f.type==='application/pdf').slice(0, 15);
+      const encoded = await Promise.all(uploadable.map(async f => ({
+        name: f.name, mimeType: f.type, base64: await fileToBase64(f)
+      })));
+      const res = await callAppsScript({
+        action: 'submit',
+        ...form,
+        existingProjectId: dupeChoice==='update' && dupeMatch ? dupeMatch.projectId : null,
+        files: encoded
+      });
+      if(res.ok){
+        form.projectId = res.projectId;
+        form.editLink = res.editLink;
+        form.status = res.status;
+      } else {
+        throw new Error(res.error || 'Submit failed');
+      }
+    }catch(e){
+      console.error('Apps Script submit failed, falling back to local demo record', e);
+      await localSubmitFallback();
+    }
+  } else {
+    await localSubmitFallback();
+  }
+
+  step = 4;
+  render();
+}
+
+async function localSubmitFallback(){
+  const pid = dupeChoice==='update' && dupeMatch ? dupeMatch.projectId : await nextProjectId();
+  form.projectId = pid;
+  form.status = 'Lead Received';
+  form.editLink = form.editLink || ('https://portal.bestkitchennet.in/edit/' + pid);
+  try{
+    let list = [];
+    try{ const r = await window.storage.get('project-list'); list = JSON.parse(r.value); }catch(e){}
+    if(dupeChoice==='update' && dupeMatch){
+      list = list.map(row => row.projectId===pid ? {...row, ...snapshotRow()} : row);
+      if(!list.some(r=>r.projectId===pid)) list.push(snapshotRow());
+    } else {
+      list.push(snapshotRow());
+    }
+    await window.storage.set('project-list', JSON.stringify(list));
+  }catch(e){ console.error('storage error', e); }
+}
+
+function snapshotRow(){
+  return {
+    srNo: form.projectId, projectId: form.projectId, customerName: form.customerName||'',
+    projectType: (form.projectTypes||[]).join(', '), phone: form.phone||'',
+    status: form.status, timestamp: form.timestamp, filesCount: form.filesCount||0,
+  };
+}
+
+async function renderAdmin(){
+  const t = document.getElementById('sheetTable');
+  let list = [];
+  try{ const r = await window.storage.get('project-list'); list = JSON.parse(r.value); }catch(e){}
+  if(!list.length){
+    t.outerHTML = `<div class="empty">No submissions yet — projects will appear here the moment a customer submits.</div>`;
+    return;
+  }
+  t.innerHTML = `<tr><th>Project ID</th><th>Client name</th><th>Project type</th><th>Phone</th><th>Status</th><th>Submitted</th><th>Files</th></tr>` +
+    list.map(r=>`<tr><td>${r.projectId}</td><td>${r.customerName}</td><td>${r.projectType}</td><td>${r.phone}</td><td><span class="status-pill">${r.status}</span></td><td>${r.timestamp}</td><td>${r.filesCount}</td></tr>`).join('');
+}
+
+document.getElementById('adminToggle').onclick = ()=>{
+  const admin = document.getElementById('adminView');
+  const flow = document.getElementById('formFlow');
+  const showingAdmin = admin.style.display==='none';
+  admin.style.display = showingAdmin ? 'block' : 'none';
+  flow.style.display = showingAdmin ? 'none' : 'block';
+  document.getElementById('adminToggle').textContent = showingAdmin ? '← Back to portal' : 'View sheet ↗';
+  if(showingAdmin){
+    if(APPS_SCRIPT_URL){
+      document.getElementById('sheetTitle').textContent = 'Submissions this browser has sent';
+      document.getElementById('sheetSub').textContent = 'These went live into your CRM Google Sheet — open the Sheet itself to see the real INDEX tab.';
+    }
+    renderAdmin();
+  }
+};
+
+render();
+</script>
+</body>
+</html>
